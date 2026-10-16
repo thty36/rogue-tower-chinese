@@ -1,0 +1,17 @@
+-target:library
+-out:LangTogglePlugin.dll
+-platform:x86
+-r:"D:/Steam/steamapps/common/Rogue Tower/Rogue Tower_Data/Managed/UnityEngine.dll"
+-langversion:5
+-warn:0
+-nologo
+-r:BepInEx/core/BepInEx.dll
+-r:BepInEx/core/0Harmony.dll
+-r:"D:/Steam/steamapps/common/Rogue Tower/Rogue Tower_Data/Managed/UnityEngine.CoreModule.dll"
+-r:"D:/Steam/steamapps/common/Rogue Tower/Rogue Tower_Data/Managed/UnityEngine.TextRenderingModule.dll"
+-r:"D:/Steam/steamapps/common/Rogue Tower/Rogue Tower_Data/Managed/UnityEngine.UIModule.dll"
+-r:"D:/Steam/steamapps/common/Rogue Tower/Rogue Tower_Data/Managed/UnityEngine.UI.dll"
+-r:"D:/Steam/steamapps/common/Rogue Tower/Rogue Tower_Data/Managed/UnityEngine.IMGUIModule.dll"
+-r:"D:/Steam/steamapps/common/Rogue Tower/Rogue Tower_Data/Managed/UnityEngine.InputLegacyModule.dll"
+LangTogglePlugin.cs
+LangTable.cs

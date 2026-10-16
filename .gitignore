@@ -29,3 +29,5 @@ debug.bat
 translations.json
 .push_state.json
 push_log.txt
+mod_build/BepInEx/
+mod_build/*.dll

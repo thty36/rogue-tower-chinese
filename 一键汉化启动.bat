@@ -59,7 +59,7 @@ if not exist ".venv\Scripts\.deps_ok" if ".venv\Scripts\python.exe"=="%RTPY%" (
 )
 
 rem ---- 3. 执行汉化并启动游戏 ----
-"%RTPY%" patcher\localize.py %*
+"%RTPY%" patcher\install_mod.py %*
 if errorlevel 1 (
     echo.
     echo [结束] 汉化未完成, 请根据上面的提示处理后再试。
