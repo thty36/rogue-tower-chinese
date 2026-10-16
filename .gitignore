@@ -27,3 +27,5 @@ fonts/
 test_tr.json
 debug.bat
 translations.json
+.push_state.json
+push_log.txt
