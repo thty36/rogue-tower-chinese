@@ -1,0 +1,29 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# 生成产物与中间文件
+output/
+test_out/
+test_out2/
+screenshot*.png
+docs/*.png
+
+# 提取过程的派生清单（可由 tools 重新生成）
+string_manifest.json
+unique_strings.json
+candidates.json
+final_candidates.json
+ordered_keys.txt
+final_keys.txt
+
+# 分批翻译源文件（已合并进 resources/translations.json）
+trans/
+
+# 游戏侧备份不进仓库
+backup_original/
+fonts/
+test_tr.json
+debug.bat
+translations.json
