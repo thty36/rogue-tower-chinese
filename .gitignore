@@ -8,7 +8,6 @@ output/
 test_out/
 test_out2/
 screenshot*.png
-docs/*.png
 
 # 提取过程的派生清单（可由 tools 重新生成）
 string_manifest.json
