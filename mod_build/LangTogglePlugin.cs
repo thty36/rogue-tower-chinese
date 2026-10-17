@@ -4,6 +4,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Text.RegularExpressions;
 using BepInEx;
 using HarmonyLib;
@@ -21,6 +22,9 @@ public class LangTogglePlugin : BaseUnityPlugin
     public static Font ZhFont;
     public static Font EnFont;
     public static Text ButtonLabel;
+    public static Text MaxXpLabel;
+    public static float LastMaxXpTime = -99f;
+    public const int MaxXpAmount = 100000000;
 
     static Harmony _harmony;
 
@@ -137,8 +141,17 @@ public class LangTogglePlugin : BaseUnityPlugin
         cv.sortingOrder = 30000;
         root.AddComponent<GraphicRaycaster>();
 
-        GameObject btnGo = new GameObject("LangToggleButton");
-        btnGo.transform.SetParent(root.transform, false);
+        Button langBtn = MakeCornerButton(root.transform, "LangToggleButton", -6f);
+        langBtn.onClick.AddListener(new UnityAction(OnToggleClicked));
+
+        Button xpBtn = MakeCornerButton(root.transform, "MaxXpButton", -44f);
+        xpBtn.onClick.AddListener(new UnityAction(OnMaxXpClicked));
+    }
+
+    Button MakeCornerButton(Transform parent, string name, float yOffset)
+    {
+        GameObject btnGo = new GameObject(name);
+        btnGo.transform.SetParent(parent, false);
         Image img = btnGo.AddComponent<Image>();
         img.color = new Color(0f, 0f, 0f, 0.55f);
         Button btn = btnGo.AddComponent<Button>();
@@ -146,27 +159,94 @@ public class LangTogglePlugin : BaseUnityPlugin
 
         GameObject lblGo = new GameObject("Label");
         lblGo.transform.SetParent(btnGo.transform, false);
-        ButtonLabel = lblGo.AddComponent<Text>();
-        ButtonLabel.font = ZhFont;
-        ButtonLabel.fontSize = 16;
-        ButtonLabel.alignment = TextAnchor.MiddleCenter;
-        ButtonLabel.color = Color.white;
-        ButtonLabel.text = "中/EN";
-        ButtonLabel.raycastTarget = false;
-        RectTransform lblRt = ButtonLabel.rectTransform;
+        Text lbl = lblGo.AddComponent<Text>();
+        lbl.font = ZhFont;
+        lbl.fontSize = 16;
+        lbl.alignment = TextAnchor.MiddleCenter;
+        lbl.color = Color.white;
+        lbl.raycastTarget = false;
+        RectTransform lblRt = lbl.rectTransform;
         lblRt.anchorMin = Vector2.zero;
         lblRt.anchorMax = Vector2.one;
         lblRt.offsetMin = Vector2.zero;
         lblRt.offsetMax = Vector2.zero;
+        if (name == "LangToggleButton") { ButtonLabel = lbl; lbl.text = "中/EN"; }
+        else { MaxXpLabel = lbl; lbl.text = "满经验"; }
 
         RectTransform rt = btnGo.GetComponent<RectTransform>();
         rt.anchorMin = new Vector2(1f, 1f);
         rt.anchorMax = new Vector2(1f, 1f);
         rt.pivot = new Vector2(1f, 1f);
-        rt.anchoredPosition = new Vector2(-6f, -6f);
+        rt.anchoredPosition = new Vector2(-6f, yOffset);
         rt.sizeDelta = new Vector2(76f, 32f);
+        return btn;
+    }
 
-        btn.onClick.AddListener(new UnityAction(OnToggleClicked));
+    void OnMaxXpClicked()
+    {
+        if (Time.unscaledTime - LastMaxXpTime < 3f)
+        {
+            if (MaxXpLabel != null) MaxXpLabel.text = "冷却中…";
+            return;
+        }
+        LastMaxXpTime = Time.unscaledTime;
+        bool ok = false;
+        int xpBefore = -1, xpAfter = -1;
+        try
+        {
+            UpgradeManager um = null;
+            // FindObjectOfType 只返回激活对象；升级面板未打开时 UpgradeManager 处于隐藏状态
+            UpgradeManager[] all = Resources.FindObjectsOfTypeAll<UpgradeManager>();
+            if (all != null && all.Length > 0) um = all[0];
+            if (um == null)
+            {
+                UpgradeManager obj = UnityEngine.Object.FindObjectOfType<UpgradeManager>();
+                if (obj != null) um = obj;
+            }
+            if (um == null)
+            {
+                // 静态单例兜底
+                var f = typeof(UpgradeManager).GetField("instance",
+                    System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic |
+                    System.Reflection.BindingFlags.Static);
+                if (f != null) um = f.GetValue(null) as UpgradeManager;
+            }
+            if (um != null)
+            {
+                var xpField = typeof(UpgradeManager).GetField("xp",
+                    System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic |
+                    System.Reflection.BindingFlags.Instance);
+                if (xpField != null) xpBefore = (int)xpField.GetValue(um);
+                um.AddXP(MaxXpAmount);
+                if (xpField != null) xpAfter = (int)xpField.GetValue(um);
+                ok = true;
+            }
+            FileLog("MaxXP clicked: found=" + (um != null) + " before=" + xpBefore + " after=" + xpAfter);
+        }
+        catch (Exception e)
+        {
+            FileLog("MaxXP error: " + e);
+        }
+        if (MaxXpLabel != null)
+            MaxXpLabel.text = ok ? "已加满✓" : "未找到";
+        StartCoroutine(RestoreXpLabel());
+    }
+
+    static void FileLog(string msg)
+    {
+        try
+        {
+            string path = Path.Combine(Paths.BepInExRootPath, "plugins", "langtoggle_log.txt");
+            System.IO.File.AppendAllText(path,
+                DateTime.Now.ToString("HH:mm:ss") + " " + msg + Environment.NewLine);
+        }
+        catch (Exception) { }
+    }
+
+    IEnumerator RestoreXpLabel()
+    {
+        yield return new WaitForSeconds(2.5f);
+        if (MaxXpLabel != null) MaxXpLabel.text = "满经验";
     }
 
     void OnToggleClicked()

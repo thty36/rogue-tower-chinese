@@ -9,8 +9,6 @@
 
 **使用流程**：Steam 安装好游戏 → 拉取本仓库 → 双击一键脚本，即可完成汉化并启动游戏。
 
-![汉化效果预览](docs/menu-preview.jpg)
-
 ## 快速开始
 
 1. 在 Steam 上安装并**至少运行过一次**《Rogue Tower》
@@ -46,19 +44,7 @@
 | 指定游戏目录 | `一键汉化启动.bat --game "D:\Steam\steamapps\common\Rogue Tower"` |
 | 卸载汉化（恢复英文） | `一键汉化启动.bat --restore` |
 
-## 工作原理（为什么这个方案更安全）
 
-游戏是 Unity (Mono) 构建、无本地化系统。本方案通过 [BepInEx](https://github.com/BepInEx/BepInEx) 注入插件，
-用 Harmony 挂钩 `Text.text` 设置器与 `OnEnable`：
-
-- **显示什么翻译什么**：所有 UI 文本在渲染瞬间查词典替换，游戏数据和存档永远是英文原版
-- **游戏逻辑零风险**：内部升级 ID、按钮事件方法名（Chop/Demolish/Open 等）作为数据保存在
-  组件字段里，从不参与渲染，因此绝无被误翻破坏的可能
-- **随时切换**：点按钮即在全量中文/全量英文间切换（含字体切换：中文用微软雅黑，英文用原版 Acme）
-- 代码在运行时拼接的动态文本（如"砍倒这棵树当前可获得 N 金币"）由模板正则翻译
-
-词典：`resources/translations.json`（1716 条中英对照）。`mod_build/` 内含插件完整源码
-（C#，可用 .NET Framework 自带 csc 编译，见 `mod_build/build.rsp`）。
 
 ### 备用：经典资源汉化模式
 

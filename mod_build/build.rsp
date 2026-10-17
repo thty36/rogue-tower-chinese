@@ -2,6 +2,7 @@
 -out:LangTogglePlugin.dll
 -platform:x86
 -r:"D:/Steam/steamapps/common/Rogue Tower/Rogue Tower_Data/Managed/UnityEngine.dll"
+-r:"D:/Steam/steamapps/common/Rogue Tower/Rogue Tower_Data/Managed/Assembly-CSharp.dll"
 -langversion:5
 -warn:0
 -nologo
